@@ -1,76 +1,76 @@
 <template>
-	<h2 class="text-center dark:text-gray-200 text-gray-800 font-medium mt-5">
-		Upload a valid URL with images to download
-	</h2>
-	<form
-		class="max-w-3xl flex flex-col items-center mx-auto gap-4 mt-5 pb-5"
-		@submit.prevent="handleSubmitForm"
-	>
-		<input
-			type="url"
-			placeholder="https://example.com/"
-			class="py-2 px-4 w-full rounded-md outline-none bg-gray-200 focus:outline-slate-200"
-			v-model="url"
-			required
-		/>
-		<ButtonAction>
-			<span v-if="isLoading">Cargando...</span>
-			<span v-else>Download images</span>
-		</ButtonAction>
-	</form>
+    <h2 class="text-center dark:text-gray-200 text-gray-800 font-medium mt-5">
+        Upload a valid URL with images to download
+    </h2>
+    <form
+        class="max-w-3xl flex flex-col items-center mx-auto gap-4 mt-5 pb-5"
+        @submit.prevent="handleSubmitForm"
+    >
+        <input
+            type="url"
+            placeholder="https://example.com/"
+            class="py-2 px-4 w-full rounded-md outline-none bg-gray-200 focus:outline-slate-200"
+            v-model="url"
+            required
+        />
+        <ButtonAction>
+            <span v-if="isLoading">Cargando...</span>
+            <span v-else>Download images</span>
+        </ButtonAction>
+    </form>
 
-	<hr />
+    <hr />
 
-	<section
-		v-if="urlToDownloadList.length > 0"
-		class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 pt-5 px-3 place-items-center"
-	>
-		<CardDownload v-for="url in urlToDownloadList" :pageData="url" />
-	</section>
+    <section
+        v-if="urlToDownloadList.length > 0"
+        class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 pt-5 px-3 place-items-center"
+    >
+        <CardDownload v-for="url in urlToDownloadList" :pageData="url" />
+    </section>
 </template>
 <script setup lang="ts">
-	useHead({
-		title: 'Image Fetch',
-		meta: [
-			{
-				name: 'description',
-				content: 'Page that dowload image for any website with the img tag',
-			},
-		],
-	});
+useHead({
+    title: 'Image Fetch',
+    meta: [
+        {
+            name: 'description',
+            content: 'Page that dowload image for any website with the img tag',
+        },
+    ],
+});
 
-	const url = ref<string>('');
-	const isLoading = ref<boolean>(false);
+const url = ref<string>('');
+const isLoading = ref<boolean>(false);
 
-	const { dowloadImages, urlToDownloadList } = useUseDownolad();
-	const { loadUrlFromPath, updateLocalStorageUrlList } = useUseLocalStorage();
+const { dowloadImages, urlToDownloadList } = useUseDownolad();
+const { loadUrlFromPath, updateLocalStorageUrlList } = useUseLocalStorage();
 
-	const handleSubmitForm = async () => {
-		isLoading.value = true;
-		await $fetch('/api/search-images', {
-			method: 'POST',
-			body: {
-				url: url.value,
-			},
-		}).then(async (data) => {
-			const { urlStackClean } = data;
-			await dowloadImages(urlStackClean, url.value);
+const handleSubmitForm = async () => {
+    isLoading.value = true;
+    await $fetch('/api/search-images', {
+        method: 'POST',
+        body: {
+            url: url.value,
+        },
+    }).then(async (data) => {
+        const { urlStackClean } = data;
+        await dowloadImages(urlStackClean, url.value);
 
-			setTimeout(() => {
-				isLoading.value = false;
-				url.value = '';
-			}, 0);
-		});
-	};
+        setTimeout(() => {
+            isLoading.value = false;
+            url.value = '';
+        }, 0);
+    });
+};
 
-	watch(urlToDownloadList.value, (newValue) => {
-		updateLocalStorageUrlList(newValue);
-	});
+watch(urlToDownloadList.value, (newValue) => {
+    updateLocalStorageUrlList(newValue);
+});
 
-	onMounted(() => {
-		const list = loadUrlFromPath();
-		if (list.length > 0) {
-			urlToDownloadList.value = list;
-		}
-	});
+onMounted(() => {
+    const list = loadUrlFromPath();
+    if (list.length > 0) {
+        urlToDownloadList.value = list;
+    }
+});
 </script>
