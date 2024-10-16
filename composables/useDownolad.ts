@@ -4,7 +4,6 @@ export const useUseDownolad = () => {
     const urlToDownloadList = ref<PageZip[]>([]);
 
     const dowloadImages = async (imagesStack: string[], mainUrl: string) => {
-        console.log(imagesStack);
         try {
             const { folderName } = await $fetch('/api/generate-folder', {
                 method: 'POST',

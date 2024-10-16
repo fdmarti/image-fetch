@@ -39,29 +39,9 @@ useHead({
     ],
 });
 
-const url = ref<string>('');
-const isLoading = ref<boolean>(false);
-
-const { dowloadImages, urlToDownloadList } = useUseDownolad();
+const { urlToDownloadList } = useUseDownolad();
 const { loadUrlFromPath, updateLocalStorageUrlList } = useUseLocalStorage();
-
-const handleSubmitForm = async () => {
-    isLoading.value = true;
-    await $fetch('/api/search-images', {
-        method: 'POST',
-        body: {
-            url: url.value,
-        },
-    }).then(async (data) => {
-        const { urlStackClean } = data;
-        await dowloadImages(urlStackClean, url.value);
-
-        setTimeout(() => {
-            isLoading.value = false;
-            url.value = '';
-        }, 0);
-    });
-};
+const { url, isLoading, handleSubmitForm } = useFetchImage();
 
 watch(urlToDownloadList.value, (newValue) => {
     updateLocalStorageUrlList(newValue);
